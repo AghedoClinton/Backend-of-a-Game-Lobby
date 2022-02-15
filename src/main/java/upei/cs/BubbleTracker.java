@@ -1,5 +1,9 @@
 package upei.cs;
 
+import upei.cs.algs4.MaxPQ;
+import upei.cs.algs4.MinPQ;
+
+
 /**
  * Class to track the two middle players:
  * 1. the lowest ranked player (best) amoung the half of players that are highest ranked (worst)
@@ -20,6 +24,9 @@ package upei.cs;
  *
  */
 public class BubbleTracker {
+    //initialize Min and Max Priority Queues data structure
+     MaxPQ<Player> bestPlayers=new MaxPQ<Player>();
+     MinPQ<Player> worstPlayers=new MinPQ<Player>();
 
     /**
      * Public Constructor Don't change this
@@ -34,6 +41,26 @@ public class BubbleTracker {
      * @param player the player being inserted into the data structure
      */
     public void put(Player player){
+        if (bestPlayers.size() == 0){//if there are no players
+            bestPlayers.insert(player);
+        }
+        else {
+            bestPlayers.insert(player); // insert in MaxPQ
+
+            if((bestPlayers.size()+worstPlayers.size()) % 2 == 0){ //after inserting, check if size is even
+                Player max=bestPlayers.delMax(); // remove player from maxPQ
+                worstPlayers.insert(max);// store the player in minPQ
+            }
+            else {
+                if(bestPlayers.max().rank() > worstPlayers.min().rank()) { //if the new players rank is worse than the root of the worsePlayer PQ
+                    Player tempMax=bestPlayers.delMax();//store the value in temp
+                    Player tempMin=worstPlayers.delMin();
+                    //swap the values from both roots
+                    bestPlayers.insert(tempMin);
+                    worstPlayers.insert(tempMax);
+                }
+            }
+        }
     }
 
     /**
@@ -49,7 +76,16 @@ public class BubbleTracker {
      * is no such player
      */
     public String bestOfTheWorst(){
+        if(bestPlayers.size() == 1 && worstPlayers.isEmpty()){ // if there is just one player
             return "";
+        }
+        else if(worstPlayers.isEmpty()){// if the minPQ is empty return empty string
+            return "";
+        }
+        else {
+            return worstPlayers.min().name(); // return players name
+        }
+
     }
 
     /**
@@ -65,6 +101,12 @@ public class BubbleTracker {
      * no such driver exists
      */
     public String worstOfTheBest() {
+        if(bestPlayers.isEmpty()){ // if maxPQ is empty return empty string
             return "";
+        }
+        else {
+            return bestPlayers.max().name(); // return players name
+        }
+
     }
 }
